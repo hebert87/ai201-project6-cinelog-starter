@@ -104,3 +104,26 @@ def test_add_to_watchlist_duplicate_raises(app, sample_user, sample_film):
             user_id=sample_user, film_id=sample_film
         ).count()
         assert count == 1
+
+
+# ── Visibility toggle (stretch — public param) ───────────────────────────────
+
+def test_add_to_watchlist_defaults_to_private(app, sample_user, sample_film):
+    """
+    Without an explicit public flag, a new watchlist entry is private.
+    """
+    with app.app_context():
+        entry = add_to_watchlist(user_id=sample_user, film_id=sample_film)
+        assert entry.public is False
+
+
+def test_add_to_watchlist_respects_public_flag(app, sample_user, sample_film):
+    """
+    Passing public=True creates a publicly visible entry, so callers can
+    opt in to sharing explicitly rather than relying on the default.
+    """
+    with app.app_context():
+        entry = add_to_watchlist(
+            user_id=sample_user, film_id=sample_film, public=True
+        )
+        assert entry.public is True
